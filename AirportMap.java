@@ -34,8 +34,9 @@ public class AirportMap extends PApplet {
 	List<Marker> routeList;
 	HashMap<Integer, Location> airports = new HashMap<Integer, Location>();
 	private ArrayList<Marker> direct = new ArrayList<Marker>();
-	private ArrayList<Marker> layover = new ArrayList<Marker>();
-	
+	private ArrayList<Marker> layover1 = new ArrayList<Marker>();
+	private ArrayList<Marker> layover2 = new ArrayList<Marker>();
+
 	public void setup() {
 		// setting up PAppler
 		size(800,600, OPENGL);
@@ -128,7 +129,12 @@ public class AirportMap extends PApplet {
 	public void mouseClicked() {
 		if (src_target!=null && des_target!=null){
 			direct.clear();
-			layover.clear();
+			for (Marker m : layover1)
+				m.setHidden(true);
+			for (Marker m : layover2)
+				m.setHidden(true);
+			layover1.clear();
+			layover2.clear();
 			src_target.setClicked(false);
 			des_target.setClicked(false);
 			src_target = null;
@@ -170,10 +176,11 @@ public class AirportMap extends PApplet {
 		if (src_target != null && des_target != null){
 			connectAirports(src_target, des_target, routeList);
 			map.addMarkers(direct);
+			map.addMarkers(layover1);
+			unhideMarkers(layover1);
+			map.addMarkers(layover2);
+			unhideMarkers(layover2);
 		}
-		
-		
-		
 	}
 	private void unhideMarkers(List<Marker> toUnhide){
 		for (Marker m : toUnhide){
@@ -199,19 +206,27 @@ public class AirportMap extends PApplet {
 				des.add((SimpleLinesMarker)r);
 			}
 		}
-
+		int count = 0;
 		for(SimpleLinesMarker r1: src){
 			//System.out.println(r1.getStringProperty("source"));
 			if (getLocation(r1.getStringProperty("destination")) == a2.getLocation())
 				direct.add(r1);
 			for(SimpleLinesMarker r2: des){
-				if (getLocation(r1.getStringProperty("destination")) == getLocation(r2.getStringProperty("source")))
-					layover.add(r2);
+				if (count < 5 && getLocation(r1.getStringProperty("destination")) == getLocation(r2.getStringProperty("source"))){
+					layover1.add(r1);
+					layover2.add(r2);
+					count++;
+				}
 			}
-		
 		}
+		System.out.println(layover1.size());
+	}
+	
+	//return layoverMarker
+	public void layoverAirports(List<Marker> route_src, List<Marker> route_des){
 		
 	}
+	
 	
 	public void draw() {
 		background(0);
